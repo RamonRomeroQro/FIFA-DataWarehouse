@@ -1,0 +1,199 @@
+
+console.sql
+-------------------------------------------------------- VISTAS -------------------------------------------------------- 
+ 
+-- VISTA Equipos 
+CREATE MATERIALIZED VIEW EQUIPOS_TEMPORADA 
+BUILD IMMEDIATE 
+REFRESH FORCE 
+ON DEMAND 
+AS 
+  SELECT B.CONFEDERACION as CONFEDERATION, A.League, A.TEAM FROM EquiposOceania@DAVIDDBQRO A, CONFEDERACIONES@DAVIDSLPDB B WHERE B.CONFEDERACION = 'OFC' 
+  UNION ALL 
+    SELECT B.CONFEDERACION as CONFEDERATION, A.League, A.HOMETEAM FROM EquiposAsia@DAVIDSLPDB A, CONFEDERACIONES@DAVIDSLPDB B WHERE  B.CONFEDERACION = 'AFC' 
+  UNION ALL 
+    SELECT B.CONFEDERACION as CONFEDERATION, A.League, A.TEAM FROM EquiposAfrica@RamonQro A, CONFEDERACIONES@DAVIDSLPDB B WHERE B.CONFEDERACION = 'CAF' 
+  UNION ALL 
+    SELECT B.CONFEDERACION as CONFEDERATION, A.League, A.HOMETEAM FROM EquiposUEFA@RamonSLP A, CONFEDERACIONES@DAVIDSLPDB B WHERE B.CONFEDERACION = 'UEFA' 
+  UNION ALL 
+    SELECT  B.CONFEDERACION as CONFEDERATION, A.League, A.Team FROM EquiposConmebol@SalmonDB A, CONFEDERACIONES@DAVIDSLPDB B WHERE B.CONFEDERACION = 'CONMEBOL' 
+  UNION ALL 
+    SELECT B.CONFEDERACION as CONFEDERATION, A.League, A.HOMETeam FROM EquiposConcacaf@ManeQRO A, CONFEDERACIONES@DAVIDSLPDB B WHERE B.CONFEDERACION = 'CONCACAF'; 
+ 
+ 
+--  Vista Partidos 
+CREATE MATERIALIZED VIEW Partidos_TEMPORADA 
+BUILD IMMEDIATE 
+REFRESH FORCE 
+ON DEMAND AS 
+(SELECT  'OFC' As CONFEDERATION, LEAGUE, SEASON, FECHA, HOMETEAM, AWAYTEAM, HOMESCORE, AWAYSCORE, HOMESCORE+AWAYSCORE AS GOLESPARTIDO FROM OFC@DAVIDDBQRO 
+ 
+UNION 
+ 
+SELECT 'CAF' As CONFEDERATION, LEAGUE, SEASON, FECHA, HOMETEAM, AWAYTEAM, HOMESCORE, AWAYSCORE, HOMESCORE+AWAYSCORE AS GOLESPARTIDO  FROM CAF@RAMONQRO 
+ 
+UNION 
+ 
+SELECT 'CONMEBOL' As CONFEDERATION, LEAGUE, SEASON, FECHA, HOMETEAM, AWAYTEAM, HOMESCORE, AWAYSCORE, HOMESCORE+AWAYSCORE AS GOLESPARTIDO  FROM CONMEBOL@SALMONDB 
+ 
+UNION 
+ 
+SELECT 'CONCACAF' As CONFEDERATION, LEAGUE, SEASON, FECHA, HOMETEAM, AWAYTEAM, HOMESCORE, AWAYSCORE, HOMESCORE+AWAYSCORE AS GOLESPARTIDO  FROM CONCACAF@MANEQRO 
+ 
+UNION 
+ 
+SELECT 'AFC' As CONFEDERATION, LEAGUE, SEASON, FECHA, HOMETEAM, AWAYTEAM, HOMESCORE, AWAYSCORE, HOMESCORE+AWAYSCORE AS GOLESPARTIDO  FROM AFC@DAVIDSLPDB 
+ 
+UNION 
+ 
+SELECT 'UEFA' As CONFEDERATION, LEAGUE, SEASON, FECHA, HOMETEAM, AWAYTEAM, HOMESCORE, AWAYSCORE, HOMESCORE+AWAYSCORE AS GOLESPARTIDO  FROM UEFA@RAMONSLP 
+); 
+ 
+--------------------------------------------------------TABLAS-------------------------------------------------------- 
+ 
+--EQUIPOS 
+DROP TABLE D_EQUIPOS_TEMPORADA; 
+CREATE TABLE D_EQUIPOS_TEMPORADA 
+( 
+  id_team NUMBER(16) NOT NULL, 
+  team VARCHAR2(386) NOT NULL, 
+  league VARCHAR2(150) NOT NULL, 
+  CONFEDERATION VARCHAR2(60), 
+ 
+  CONSTRAINT pk_EQUIPOS PRIMARY KEY (id_team) 
+); 
+--PARTIDOS 
+DROP TABLE D_PARTIDOS_TEMPORADA; 
+CREATE TABLE D_PARTIDOS_TEMPORADA 
+( 
+  id_partido NUMBER(38) NOT NULL, 
+  CONFEDERATION VARCHAR2(8) NOT NULL , 
+  LEAGUE VARCHAR2(150) NOT NULL , 
+  SEASON VARCHAR2(150) NOT NULL , 
+  FECHA DATE NOT NULL , 
+  HOMETEAM VARCHAR2(384) NOT NULL , 
+  AWAYTEAM VARCHAR2(384) NOT NULL , 
+  HOMESCORE NUMBER(8), 
+  AWAYSCORE NUMBER(8), 
+  GOLESPARTIDO NUMBER(8), 
+ 
+  CONSTRAINT pk_PARTIDOS PRIMARY KEY (id_partido) 
+); 
+ 
+DROP TABLE H_HISTORIAL_TEMPORADA; 
+CREATE TABLE H_HISTORIAL_TEMPORADA 
+( 
+  id_Historial NUMBER(38) NOT NULL , 
+  id_Partido NUMBER(38) NOT NULL , 
+  id_HomeTeam NUMBER(38) NOT NULL , 
+  id_AwayTeam NUMBER(38) NOT NULL , 
+  HOMERESULT NUMBER(8) NOT NULL, 
+  AWAYRESLT NUMBER(8) NOT NULL , 
+  TOTALGOALS NUMBER(8) NOT NULL , 
+ 
+  CONSTRAINT  pk_Historial PRIMARY KEY (id_Historial), 
+  CONSTRAINT fk_Partido FOREIGN KEY (id_Partido) REFERENCES D_PARTIDOS_TEMPORADA 
+); 
+ 
+--------------------------------------------------------SECUENCIAS-------------------------------------------------------- 
+ 
+CREATE SEQUENCE  SEQ_D_PARTIDOS_TEMPORADA; 
+ 
+CREATE SEQUENCE SEQ_H_HISTORIAL_TEMPORADA; 
+ 
+CREATE SEQUENCE SEQ_D_EQUIPOS_TEMPORADA; 
+ 
+--------------------------------------------------------PROCEDIMIENTOS DE CARGA-------------------------------------------------------- 
+ 
+--PARTDIOS 
+create or replace PROCEDURE ACTUALIZA_PARTIDOS_TEMPORADA 
+AS 
+  vConf VARCHAR2(8); 
+  vLeague VARCHAR2(150); 
+  vSeason VARCHAR2(150); 
+  vFecha date; 
+  vHomeTeam VARCHAR2(384); 
+  vAwayTeam VARCHAR2(150); 
+  vHomeScore NUMBER; 
+  vAwayScore NUMBER; 
+  vGolesPartido NUMBER; 
+ 
+  cursor c_partidos is 
+    select CONFEDERATION, LEAGUE, SEASON, FECHA, HOMETEAM, AWAYTEAM, HOMESCORE, AWAYSCORE, GOLESPARTIDO 
+      FROM PARTIDOS_TEMPORADA 
+        WHERE HOMETEAM in (SELECT TEAM FROM D_EQUIPOS_TEMPORADA) 
+        and AWAYTEAM in (SELECT TEAM FROM D_EQUIPOS_TEMPORADA); 
+ 
+BEGIN 
+  open c_partidos; 
+  LOOP 
+    fetch c_partidos into vConf, vLeague, vSeason, vFecha, vHomeTeam, vAwayTeam, vHomeScore, vAwayScore, vGolesPartido; 
+    exit when c_partidos%NOTFOUND; 
+    insert into D_PARTIDOS_TEMPORADA (ID_PARTIDO, CONFEDERATION, LEAGUE, SEASON, FECHA, HOMETEAM, AWAYTEAM, HOMESCORE, AWAYSCORE, GOLESPARTIDO) 
+      VALUES (SEQ_D_PARTIDOS_TEMPORADA.nextval, vConf, vLeague, vSeason, vFecha, vHomeTeam, vAwayTeam, vHomeScore, vAwayScore, vGolesPartido); 
+    COMMIT; 
+  END LOOP; 
+  close c_partidos; 
+END ACTUALIZA_PARTIDOS_TEMPORADA; 
+ 
+-- EQUIPOS 
+ 
+create or replace PROCEDURE ACTUALIZA_EQUIPOS_TEMPORADA 
+AS 
+  vConf VARCHAR2(60); 
+  vLeague VARCHAR2(150); 
+  vTeam VARCHAR2(384); 
+ 
+  cursor c_equipos is 
+    select CONFEDERATION, LEAGUE, TEAM 
+      FROM EQUIPOS_TEMPORADA 
+        where TEAM not in (SELECT TEAM FROM D_EQUIPOS_TEMPORADA) 
+        and CONFEDERATION not in (SELECT CONFEDERATION FROM D_EQUIPOS_TEMPORADA) 
+        and LEAGUE not in (SELECT LEAGUE FROM D_EQUIPOS_TEMPORADA); 
+ 
+BEGIN 
+  open c_equipos; 
+  LOOP 
+    fetch c_equipos into vConf, vLeague, vTeam; 
+    exit when c_equipos%NOTFOUND; 
+    insert into D_EQUIPOS_TEMPORADA (id_team, CONFEDERATION, league, TEAM) 
+      VALUES (SEQ_D_EQUIPOS_TEMPORADA.nextval, vConf, vLeague, vTeam); 
+      COMMIT; 
+  END LOOP; 
+  close c_equipos; 
+END ACTUALIZA_EQUIPOS_TEMPORADA; 
+ 
+  -- HISTORIAL/TABLA HECHOS 
+ 
+CREATE OR REPLACE PROCEDURE ACTUALIZA_HISTORIAL_TEMPORADA 
+AS 
+ vid_partido number; 
+ vid_HomeTeam number; 
+ vid_AwayTeam NUMBER; 
+ vhomeresult number; 
+ vawayresult number; 
+ vtotalgoals number; 
+ 
+  cursor c_historial is 
+ 
+SELECT id_partido, hometeam, id_team as AWAYTEAM,  homescore, awayscore, HOMESCORE+AWAYSCORE as Goles FROM( 
+SELECT id_partido, id_team as HOMETEAM, awayteam,  homescore, awayscore FROM 
+(select id_partido, hometeam, awayteam,  homescore, awayscore, GOLESPARTIDO 
+ from D_PARTIDOS_TEMPORADA), D_EQUIPOS_TEMPORADA WHERE hometeam = team), D_EQUIPOS_TEMPORADA WHERE AWAYTEAM = TEAM; 
+ 
+ 
+BEGIN 
+ open c_historial; 
+ LOOP 
+    fetch c_historial into vid_partido, vid_HomeTeam, vid_AwayTeam, vhomeresult, vawayresult, vtotalgoals; 
+    exit when c_historial%NOTFOUND; 
+    insert into h_historial_TEMPORADA (ID_HISTORIAL, ID_PARTIDO, id_HomeTeam, id_AwayTeam, HOMERESULT, AWAYRESLT, TOTALGOALS) 
+    values (seq_h_historial_TEMPORADA.nextval, vid_partido, vid_HomeTeam, vid_AwayTeam, vhomeresult, vawayresult, vtotalgoals); 
+    commit; 
+  END LOOP; 
+  close c_historial; 
+END ACTUALIZA_HISTORIAL_TEMPORADA; 
+ 
+--------------------------------------------------------CONSULTAS-------------------------------------------------------- 
+ 
+SELECT id_partido, , SUM(TOTALGOALS) as Goles FROM H_HISTORIAL_TEMPORADA WHERE

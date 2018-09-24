@@ -1,0 +1,265 @@
+<html>
+<head>
+<title>console.sql</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.ln { color: #6da0a1; font-weight: normal; font-style: normal; }
+.s0 { color: rgb(229,66,66); font-style: italic; }
+.s1 { color: rgb(155,194,142); }
+.s2 { color: rgb(202,158,77); font-weight: bold; }
+.s3 { color: rgb(52,180,52); font-weight: bold; }
+.s4 { color: rgb(249,113,187); }
+</style>
+</head>
+<BODY BGCOLOR="#404040">
+<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<TR><TD><CENTER>
+<FONT FACE="Arial, Helvetica" COLOR="#000000">
+console.sql</FONT>
+</center></TD></TR></TABLE>
+<pre>
+<span class="s0">-------------------------------------------------------- VISTAS --------------------------------------------------------</span><span class="s1"> 
+ 
+</span><span class="s0">-- VISTA Equipos</span><span class="s1"> 
+</span><span class="s2">CREATE MATERIALIZED VIEW </span><span class="s1">EQUIPOS_TEMPORADA 
+</span><span class="s2">BUILD IMMEDIATE</span><span class="s1"> 
+</span><span class="s2">REFRESH FORCE</span><span class="s1"> 
+</span><span class="s2">ON DEMAND</span><span class="s1"> 
+</span><span class="s2">AS</span><span class="s1"> 
+  </span><span class="s2">SELECT </span><span class="s1">B.CONFEDERACION </span><span class="s2">as </span><span class="s1">CONFEDERATION, </span><span class="s2">A</span><span class="s1">.League, </span><span class="s2">A</span><span class="s1">.TEAM </span><span class="s2">FROM </span><span class="s1">EquiposOceania@DAVIDDBQRO </span><span class="s2">A</span><span class="s1">, CONFEDERACIONES@DAVIDSLPDB B </span><span class="s2">WHERE </span><span class="s1">B.CONFEDERACION = </span><span class="s3">'OFC'</span><span class="s1"> 
+  </span><span class="s2">UNION ALL</span><span class="s1"> 
+    </span><span class="s2">SELECT </span><span class="s1">B.CONFEDERACION </span><span class="s2">as </span><span class="s1">CONFEDERATION, </span><span class="s2">A</span><span class="s1">.League, </span><span class="s2">A</span><span class="s1">.HOMETEAM </span><span class="s2">FROM </span><span class="s1">EquiposAsia@DAVIDSLPDB </span><span class="s2">A</span><span class="s1">, CONFEDERACIONES@DAVIDSLPDB B </span><span class="s2">WHERE  </span><span class="s1">B.CONFEDERACION = </span><span class="s3">'AFC'</span><span class="s1"> 
+  </span><span class="s2">UNION ALL</span><span class="s1"> 
+    </span><span class="s2">SELECT </span><span class="s1">B.CONFEDERACION </span><span class="s2">as </span><span class="s1">CONFEDERATION, </span><span class="s2">A</span><span class="s1">.League, </span><span class="s2">A</span><span class="s1">.TEAM </span><span class="s2">FROM </span><span class="s1">EquiposAfrica@RamonQro </span><span class="s2">A</span><span class="s1">, CONFEDERACIONES@DAVIDSLPDB B </span><span class="s2">WHERE </span><span class="s1">B.CONFEDERACION = </span><span class="s3">'CAF'</span><span class="s1"> 
+  </span><span class="s2">UNION ALL</span><span class="s1"> 
+    </span><span class="s2">SELECT </span><span class="s1">B.CONFEDERACION </span><span class="s2">as </span><span class="s1">CONFEDERATION, </span><span class="s2">A</span><span class="s1">.League, </span><span class="s2">A</span><span class="s1">.HOMETEAM </span><span class="s2">FROM </span><span class="s1">EquiposUEFA@RamonSLP </span><span class="s2">A</span><span class="s1">, CONFEDERACIONES@DAVIDSLPDB B </span><span class="s2">WHERE </span><span class="s1">B.CONFEDERACION = </span><span class="s3">'UEFA'</span><span class="s1"> 
+  </span><span class="s2">UNION ALL</span><span class="s1"> 
+    </span><span class="s2">SELECT  </span><span class="s1">B.CONFEDERACION </span><span class="s2">as </span><span class="s1">CONFEDERATION, </span><span class="s2">A</span><span class="s1">.League, </span><span class="s2">A</span><span class="s1">.Team </span><span class="s2">FROM </span><span class="s1">EquiposConmebol@SalmonDB </span><span class="s2">A</span><span class="s1">, CONFEDERACIONES@DAVIDSLPDB B </span><span class="s2">WHERE </span><span class="s1">B.CONFEDERACION = </span><span class="s3">'CONMEBOL'</span><span class="s1"> 
+  </span><span class="s2">UNION ALL</span><span class="s1"> 
+    </span><span class="s2">SELECT </span><span class="s1">B.CONFEDERACION </span><span class="s2">as </span><span class="s1">CONFEDERATION, </span><span class="s2">A</span><span class="s1">.League, </span><span class="s2">A</span><span class="s1">.HOMETeam </span><span class="s2">FROM </span><span class="s1">EquiposConcacaf@ManeQRO </span><span class="s2">A</span><span class="s1">, CONFEDERACIONES@DAVIDSLPDB B </span><span class="s2">WHERE </span><span class="s1">B.CONFEDERACION = </span><span class="s3">'CONCACAF'</span><span class="s1">; 
+ 
+ 
+</span><span class="s0">--  Vista Partidos</span><span class="s1"> 
+</span><span class="s2">CREATE MATERIALIZED VIEW </span><span class="s1">Partidos_TEMPORADA 
+</span><span class="s2">BUILD IMMEDIATE</span><span class="s1"> 
+</span><span class="s2">REFRESH FORCE</span><span class="s1"> 
+</span><span class="s2">ON DEMAND AS</span><span class="s1"> 
+(</span><span class="s2">SELECT  </span><span class="s3">'OFC' </span><span class="s2">As </span><span class="s1">CONFEDERATION, LEAGUE, SEASON, FECHA, HOMETEAM, AWAYTEAM, HOMESCORE, AWAYSCORE, HOMESCORE+AWAYSCORE </span><span class="s2">AS </span><span class="s1">GOLESPARTIDO </span><span class="s2">FROM </span><span class="s1">OFC@DAVIDDBQRO 
+ 
+</span><span class="s2">UNION</span><span class="s1"> 
+ 
+</span><span class="s2">SELECT </span><span class="s3">'CAF' </span><span class="s2">As </span><span class="s1">CONFEDERATION, LEAGUE, SEASON, FECHA, HOMETEAM, AWAYTEAM, HOMESCORE, AWAYSCORE, HOMESCORE+AWAYSCORE </span><span class="s2">AS </span><span class="s1">GOLESPARTIDO  </span><span class="s2">FROM </span><span class="s1">CAF@RAMONQRO 
+ 
+</span><span class="s2">UNION</span><span class="s1"> 
+ 
+</span><span class="s2">SELECT </span><span class="s3">'CONMEBOL' </span><span class="s2">As </span><span class="s1">CONFEDERATION, LEAGUE, SEASON, FECHA, HOMETEAM, AWAYTEAM, HOMESCORE, AWAYSCORE, HOMESCORE+AWAYSCORE </span><span class="s2">AS </span><span class="s1">GOLESPARTIDO  </span><span class="s2">FROM </span><span class="s1">CONMEBOL@SALMONDB 
+ 
+</span><span class="s2">UNION</span><span class="s1"> 
+ 
+</span><span class="s2">SELECT </span><span class="s3">'CONCACAF' </span><span class="s2">As </span><span class="s1">CONFEDERATION, LEAGUE, SEASON, FECHA, HOMETEAM, AWAYTEAM, HOMESCORE, AWAYSCORE, HOMESCORE+AWAYSCORE </span><span class="s2">AS </span><span class="s1">GOLESPARTIDO  </span><span class="s2">FROM </span><span class="s1">CONCACAF@MANEQRO 
+ 
+</span><span class="s2">UNION</span><span class="s1"> 
+ 
+</span><span class="s2">SELECT </span><span class="s3">'AFC' </span><span class="s2">As </span><span class="s1">CONFEDERATION, LEAGUE, SEASON, FECHA, HOMETEAM, AWAYTEAM, HOMESCORE, AWAYSCORE, HOMESCORE+AWAYSCORE </span><span class="s2">AS </span><span class="s1">GOLESPARTIDO  </span><span class="s2">FROM </span><span class="s1">AFC@DAVIDSLPDB 
+ 
+</span><span class="s2">UNION</span><span class="s1"> 
+ 
+</span><span class="s2">SELECT </span><span class="s3">'UEFA' </span><span class="s2">As </span><span class="s1">CONFEDERATION, LEAGUE, SEASON, FECHA, HOMETEAM, AWAYTEAM, HOMESCORE, AWAYSCORE, HOMESCORE+AWAYSCORE </span><span class="s2">AS </span><span class="s1">GOLESPARTIDO  </span><span class="s2">FROM </span><span class="s1">UEFA@RAMONSLP 
+); 
+ 
+</span><span class="s0">--------------------------------------------------------TABLAS--------------------------------------------------------</span><span class="s1"> 
+ 
+</span><span class="s0">--EQUIPOS</span><span class="s1"> 
+</span><span class="s2">DROP TABLE </span><span class="s1">D_EQUIPOS_TEMPORADA; 
+</span><span class="s2">CREATE TABLE </span><span class="s1">D_EQUIPOS_TEMPORADA 
+( 
+  id_team </span><span class="s2">NUMBER</span><span class="s1">(</span><span class="s4">16</span><span class="s1">) </span><span class="s2">NOT NULL</span><span class="s1">, 
+  team </span><span class="s2">VARCHAR2</span><span class="s1">(</span><span class="s4">386</span><span class="s1">) </span><span class="s2">NOT NULL</span><span class="s1">, 
+  league </span><span class="s2">VARCHAR2</span><span class="s1">(</span><span class="s4">150</span><span class="s1">) </span><span class="s2">NOT NULL</span><span class="s1">, 
+  CONFEDERATION </span><span class="s2">VARCHAR2</span><span class="s1">(</span><span class="s4">60</span><span class="s1">), 
+ 
+  </span><span class="s2">CONSTRAINT </span><span class="s1">pk_EQUIPOS </span><span class="s2">PRIMARY KEY </span><span class="s1">(id_team) 
+); 
+</span><span class="s0">--PARTIDOS</span><span class="s1"> 
+</span><span class="s2">DROP TABLE </span><span class="s1">D_PARTIDOS_TEMPORADA; 
+</span><span class="s2">CREATE TABLE </span><span class="s1">D_PARTIDOS_TEMPORADA 
+( 
+  id_partido </span><span class="s2">NUMBER</span><span class="s1">(</span><span class="s4">38</span><span class="s1">) </span><span class="s2">NOT NULL</span><span class="s1">, 
+  CONFEDERATION </span><span class="s2">VARCHAR2</span><span class="s1">(</span><span class="s4">8</span><span class="s1">) </span><span class="s2">NOT NULL </span><span class="s1">, 
+  LEAGUE </span><span class="s2">VARCHAR2</span><span class="s1">(</span><span class="s4">150</span><span class="s1">) </span><span class="s2">NOT NULL </span><span class="s1">, 
+  SEASON </span><span class="s2">VARCHAR2</span><span class="s1">(</span><span class="s4">150</span><span class="s1">) </span><span class="s2">NOT NULL </span><span class="s1">, 
+  FECHA </span><span class="s2">DATE NOT NULL </span><span class="s1">, 
+  HOMETEAM </span><span class="s2">VARCHAR2</span><span class="s1">(</span><span class="s4">384</span><span class="s1">) </span><span class="s2">NOT NULL </span><span class="s1">, 
+  AWAYTEAM </span><span class="s2">VARCHAR2</span><span class="s1">(</span><span class="s4">384</span><span class="s1">) </span><span class="s2">NOT NULL </span><span class="s1">, 
+  HOMESCORE </span><span class="s2">NUMBER</span><span class="s1">(</span><span class="s4">8</span><span class="s1">), 
+  AWAYSCORE </span><span class="s2">NUMBER</span><span class="s1">(</span><span class="s4">8</span><span class="s1">), 
+  GOLESPARTIDO </span><span class="s2">NUMBER</span><span class="s1">(</span><span class="s4">8</span><span class="s1">), 
+ 
+  </span><span class="s2">CONSTRAINT </span><span class="s1">pk_PARTIDOS </span><span class="s2">PRIMARY KEY </span><span class="s1">(id_partido) 
+); 
+ 
+</span><span class="s2">DROP TABLE </span><span class="s1">H_HISTORIAL_TEMPORADA; 
+</span><span class="s2">CREATE TABLE </span><span class="s1">H_HISTORIAL_TEMPORADA 
+( 
+  id_Historial </span><span class="s2">NUMBER</span><span class="s1">(</span><span class="s4">38</span><span class="s1">) </span><span class="s2">NOT NULL </span><span class="s1">, 
+  id_Partido </span><span class="s2">NUMBER</span><span class="s1">(</span><span class="s4">38</span><span class="s1">) </span><span class="s2">NOT NULL </span><span class="s1">, 
+  id_HomeTeam </span><span class="s2">NUMBER</span><span class="s1">(</span><span class="s4">38</span><span class="s1">) </span><span class="s2">NOT NULL </span><span class="s1">, 
+  id_AwayTeam </span><span class="s2">NUMBER</span><span class="s1">(</span><span class="s4">38</span><span class="s1">) </span><span class="s2">NOT NULL </span><span class="s1">, 
+  HOMERESULT </span><span class="s2">NUMBER</span><span class="s1">(</span><span class="s4">8</span><span class="s1">) </span><span class="s2">NOT NULL</span><span class="s1">, 
+  AWAYRESLT </span><span class="s2">NUMBER</span><span class="s1">(</span><span class="s4">8</span><span class="s1">) </span><span class="s2">NOT NULL </span><span class="s1">, 
+  TOTALGOALS </span><span class="s2">NUMBER</span><span class="s1">(</span><span class="s4">8</span><span class="s1">) </span><span class="s2">NOT NULL </span><span class="s1">, 
+ 
+  </span><span class="s2">CONSTRAINT  </span><span class="s1">pk_Historial </span><span class="s2">PRIMARY KEY </span><span class="s1">(id_Historial), 
+  </span><span class="s2">CONSTRAINT </span><span class="s1">fk_Partido </span><span class="s2">FOREIGN KEY </span><span class="s1">(id_Partido) </span><span class="s2">REFERENCES </span><span class="s1">D_PARTIDOS_TEMPORADA 
+); 
+ 
+</span><span class="s0">--------------------------------------------------------SECUENCIAS--------------------------------------------------------</span><span class="s1"> 
+</span><span class="s2">DROP SEQUENCE  </span><span class="s1">SEQ_D_PARTIDOS_TEMPORADA; 
+</span><span class="s2">CREATE SEQUENCE  </span><span class="s1">SEQ_D_PARTIDOS_TEMPORADA; 
+</span><span class="s2">DROP SEQUENCE  </span><span class="s1">SEQ_H_HISTORIAL_TEMPORADA; 
+</span><span class="s2">CREATE SEQUENCE </span><span class="s1">SEQ_H_HISTORIAL_TEMPORADA; 
+</span><span class="s2">DROP SEQUENCE  </span><span class="s1">SEQ_D_EQUIPOS_TEMPORADA; 
+</span><span class="s2">CREATE SEQUENCE </span><span class="s1">SEQ_D_EQUIPOS_TEMPORADA; 
+ 
+</span><span class="s0">--------------------------------------------------------PROCEDIMIENTOS DE CARGA--------------------------------------------------------</span><span class="s1"> 
+ 
+</span><span class="s0">--PARTDIOS</span><span class="s1"> 
+</span><span class="s2">create or replace PROCEDURE </span><span class="s1">ACTUALIZA_PARTIDOS_TEMPORADA 
+</span><span class="s2">AS</span><span class="s1"> 
+  vConf </span><span class="s2">VARCHAR2</span><span class="s1">(</span><span class="s4">8</span><span class="s1">); 
+  vLeague </span><span class="s2">VARCHAR2</span><span class="s1">(</span><span class="s4">150</span><span class="s1">); 
+  vSeason </span><span class="s2">VARCHAR2</span><span class="s1">(</span><span class="s4">150</span><span class="s1">); 
+  vFecha </span><span class="s2">date</span><span class="s1">; 
+  vHomeTeam </span><span class="s2">VARCHAR2</span><span class="s1">(</span><span class="s4">384</span><span class="s1">); 
+  vAwayTeam </span><span class="s2">VARCHAR2</span><span class="s1">(</span><span class="s4">150</span><span class="s1">); 
+  vHomeScore </span><span class="s2">NUMBER</span><span class="s1">; 
+  vAwayScore </span><span class="s2">NUMBER</span><span class="s1">; 
+  vGolesPartido </span><span class="s2">NUMBER</span><span class="s1">; 
+ 
+  </span><span class="s2">cursor </span><span class="s1">c_partidos </span><span class="s2">is</span><span class="s1"> 
+    </span><span class="s2">select </span><span class="s1">CONFEDERATION, LEAGUE, SEASON, FECHA, HOMETEAM, AWAYTEAM, HOMESCORE, AWAYSCORE, GOLESPARTIDO 
+      </span><span class="s2">FROM </span><span class="s1">PARTIDOS_TEMPORADA 
+        </span><span class="s2">WHERE </span><span class="s1">HOMETEAM </span><span class="s2">in </span><span class="s1">(</span><span class="s2">SELECT </span><span class="s1">TEAM </span><span class="s2">FROM </span><span class="s1">D_EQUIPOS_TEMPORADA) 
+        </span><span class="s2">and </span><span class="s1">AWAYTEAM </span><span class="s2">in </span><span class="s1">(</span><span class="s2">SELECT </span><span class="s1">TEAM </span><span class="s2">FROM </span><span class="s1">D_EQUIPOS_TEMPORADA); 
+ 
+</span><span class="s2">BEGIN</span><span class="s1"> 
+  </span><span class="s2">open </span><span class="s1">c_partidos; 
+  </span><span class="s2">LOOP</span><span class="s1"> 
+    </span><span class="s2">fetch </span><span class="s1">c_partidos </span><span class="s2">into </span><span class="s1">vConf, vLeague, vSeason, vFecha, vHomeTeam, vAwayTeam, vHomeScore, vAwayScore, vGolesPartido; 
+    </span><span class="s2">exit when </span><span class="s1">c_partidos%</span><span class="s2">NOTFOUND</span><span class="s1">; 
+    </span><span class="s2">insert into </span><span class="s1">D_PARTIDOS_TEMPORADA (ID_PARTIDO, CONFEDERATION, LEAGUE, SEASON, FECHA, HOMETEAM, AWAYTEAM, HOMESCORE, AWAYSCORE, GOLESPARTIDO) 
+      </span><span class="s2">VALUES </span><span class="s1">(SEQ_D_PARTIDOS_TEMPORADA.nextval, vConf, vLeague, vSeason, vFecha, vHomeTeam, vAwayTeam, vHomeScore, vAwayScore, vGolesPartido); 
+    </span><span class="s2">COMMIT</span><span class="s1">; 
+  </span><span class="s2">END LOOP</span><span class="s1">; 
+  </span><span class="s2">close </span><span class="s1">c_partidos; 
+</span><span class="s2">END </span><span class="s1">ACTUALIZA_PARTIDOS_TEMPORADA; 
+ 
+</span><span class="s0">-- EQUIPOS</span><span class="s1"> 
+ 
+</span><span class="s2">create or replace PROCEDURE </span><span class="s1">ACTUALIZA_EQUIPOS_TEMPORADA 
+</span><span class="s2">AS</span><span class="s1"> 
+  vConf </span><span class="s2">VARCHAR2</span><span class="s1">(</span><span class="s4">60</span><span class="s1">); 
+  vLeague </span><span class="s2">VARCHAR2</span><span class="s1">(</span><span class="s4">150</span><span class="s1">); 
+  vTeam </span><span class="s2">VARCHAR2</span><span class="s1">(</span><span class="s4">384</span><span class="s1">); 
+ 
+  </span><span class="s2">cursor </span><span class="s1">c_equipos </span><span class="s2">is</span><span class="s1"> 
+    </span><span class="s2">select </span><span class="s1">CONFEDERATION, LEAGUE, TEAM 
+      </span><span class="s2">FROM </span><span class="s1">EQUIPOS_TEMPORADA 
+        </span><span class="s2">where </span><span class="s1">TEAM </span><span class="s2">not in </span><span class="s1">(</span><span class="s2">SELECT </span><span class="s1">TEAM </span><span class="s2">FROM </span><span class="s1">D_EQUIPOS_TEMPORADA) 
+        </span><span class="s2">and </span><span class="s1">CONFEDERATION </span><span class="s2">not in </span><span class="s1">(</span><span class="s2">SELECT </span><span class="s1">CONFEDERATION </span><span class="s2">FROM </span><span class="s1">D_EQUIPOS_TEMPORADA) 
+        </span><span class="s2">and </span><span class="s1">LEAGUE </span><span class="s2">not in </span><span class="s1">(</span><span class="s2">SELECT </span><span class="s1">LEAGUE </span><span class="s2">FROM </span><span class="s1">D_EQUIPOS_TEMPORADA); 
+ 
+</span><span class="s2">BEGIN</span><span class="s1"> 
+  </span><span class="s2">open </span><span class="s1">c_equipos; 
+  </span><span class="s2">LOOP</span><span class="s1"> 
+    </span><span class="s2">fetch </span><span class="s1">c_equipos </span><span class="s2">into </span><span class="s1">vConf, vLeague, vTeam; 
+    </span><span class="s2">exit when </span><span class="s1">c_equipos%</span><span class="s2">NOTFOUND</span><span class="s1">; 
+    </span><span class="s2">insert into </span><span class="s1">D_EQUIPOS_TEMPORADA (id_team, CONFEDERATION, league, TEAM) 
+      </span><span class="s2">VALUES </span><span class="s1">(SEQ_D_EQUIPOS_TEMPORADA.nextval, vConf, vLeague, vTeam); 
+      </span><span class="s2">COMMIT</span><span class="s1">; 
+  </span><span class="s2">END LOOP</span><span class="s1">; 
+  </span><span class="s2">close </span><span class="s1">c_equipos; 
+</span><span class="s2">END </span><span class="s1">ACTUALIZA_EQUIPOS_TEMPORADA; 
+ 
+  </span><span class="s0">-- HISTORIAL/TABLA HECHOS</span><span class="s1"> 
+ 
+</span><span class="s2">CREATE OR REPLACE PROCEDURE </span><span class="s1">ACTUALIZA_HISTORIAL_TEMPORADA 
+</span><span class="s2">AS</span><span class="s1"> 
+ vid_partido </span><span class="s2">number</span><span class="s1">; 
+ vid_HomeTeam </span><span class="s2">number</span><span class="s1">; 
+ vid_AwayTeam </span><span class="s2">NUMBER</span><span class="s1">; 
+ vhomeresult </span><span class="s2">number</span><span class="s1">; 
+ vawayresult </span><span class="s2">number</span><span class="s1">; 
+ vtotalgoals </span><span class="s2">number</span><span class="s1">; 
+ 
+  </span><span class="s2">cursor </span><span class="s1">c_historial </span><span class="s2">is</span><span class="s1"> 
+ 
+</span><span class="s2">SELECT </span><span class="s1">id_partido, hometeam, id_team </span><span class="s2">as </span><span class="s1">AWAYTEAM,  homescore, awayscore, HOMESCORE+AWAYSCORE </span><span class="s2">as </span><span class="s1">Goles </span><span class="s2">FROM</span><span class="s1">( 
+</span><span class="s2">SELECT </span><span class="s1">id_partido, id_team </span><span class="s2">as </span><span class="s1">HOMETEAM, awayteam,  homescore, awayscore </span><span class="s2">FROM</span><span class="s1"> 
+(</span><span class="s2">select </span><span class="s1">id_partido, hometeam, awayteam,  homescore, awayscore, GOLESPARTIDO 
+ </span><span class="s2">from </span><span class="s1">D_PARTIDOS_TEMPORADA), D_EQUIPOS_TEMPORADA </span><span class="s2">WHERE </span><span class="s1">hometeam = team), D_EQUIPOS_TEMPORADA </span><span class="s2">WHERE </span><span class="s1">AWAYTEAM = TEAM; 
+ 
+ 
+</span><span class="s2">BEGIN</span><span class="s1"> 
+ </span><span class="s2">open </span><span class="s1">c_historial; 
+ </span><span class="s2">LOOP</span><span class="s1"> 
+    </span><span class="s2">fetch </span><span class="s1">c_historial </span><span class="s2">into </span><span class="s1">vid_partido, vid_HomeTeam, vid_AwayTeam, vhomeresult, vawayresult, vtotalgoals; 
+    </span><span class="s2">exit when </span><span class="s1">c_historial%</span><span class="s2">NOTFOUND</span><span class="s1">; 
+    </span><span class="s2">insert into </span><span class="s1">h_historial_TEMPORADA (ID_HISTORIAL, ID_PARTIDO, id_HomeTeam, id_AwayTeam, HOMERESULT, AWAYRESLT, TOTALGOALS) 
+    </span><span class="s2">values </span><span class="s1">(seq_h_historial_TEMPORADA.nextval, vid_partido, vid_HomeTeam, vid_AwayTeam, vhomeresult, vawayresult, vtotalgoals); 
+    </span><span class="s2">commit</span><span class="s1">; 
+  </span><span class="s2">END LOOP</span><span class="s1">; 
+  </span><span class="s2">close </span><span class="s1">c_historial; 
+</span><span class="s2">END </span><span class="s1">ACTUALIZA_HISTORIAL_TEMPORADA; 
+ 
+</span><span class="s0">--------------------------------------------------------CONSULTAS--------------------------------------------------------</span><span class="s1"> 
+ 
+ 
+</span><span class="s0">-- Equipo con más goles</span><span class="s1"> 
+ 
+</span><span class="s2">SELECT </span><span class="s1">D_EQUIPOS_TEMPORADA.TEAM, Goles </span><span class="s2">FROM</span><span class="s1">( 
+ 
+    </span><span class="s2">SELECT </span><span class="s1">id_HomeTeam, SUM(HOMERESULT) </span><span class="s2">as </span><span class="s1">Goles 
+    </span><span class="s2">FROM </span><span class="s1">H_HISTORIAL_TEMPORADA 
+    </span><span class="s2">GROUP BY </span><span class="s1">id_HomeTeam </span><span class="s2">ORDER BY </span><span class="s1">GOLES </span><span class="s2">DESC</span><span class="s1"> 
+ 
+  ), D_EQUIPOS_TEMPORADA </span><span class="s2">WHERE </span><span class="s1">id_HomeTeam = D_EQUIPOS_TEMPORADA.id_team </span><span class="s2">AND ROWNUM</span><span class="s1">=</span><span class="s4">1</span><span class="s1">; 
+ 
+</span><span class="s0">-- Equipo con menos goles</span><span class="s1"> 
+ 
+</span><span class="s2">SELECT </span><span class="s1">D_EQUIPOS_TEMPORADA.TEAM, Goles </span><span class="s2">FROM</span><span class="s1">( 
+ 
+    </span><span class="s2">SELECT </span><span class="s1">id_HomeTeam, SUM(HOMERESULT) </span><span class="s2">as </span><span class="s1">Goles 
+    </span><span class="s2">FROM </span><span class="s1">H_HISTORIAL_TEMPORADA 
+    </span><span class="s2">GROUP BY </span><span class="s1">id_HomeTeam </span><span class="s2">ORDER BY </span><span class="s1">GOLES </span><span class="s2">ASC</span><span class="s1"> 
+ 
+  ), D_EQUIPOS_TEMPORADA </span><span class="s2">WHERE </span><span class="s1">id_HomeTeam = D_EQUIPOS_TEMPORADA.id_team </span><span class="s2">AND ROWNUM</span><span class="s1">=</span><span class="s4">1</span><span class="s1">; 
+ 
+</span><span class="s0">-- Equipo con más goles en contra</span><span class="s1"> 
+ 
+</span><span class="s2">SELECT </span><span class="s1">D_EQUIPOS_TEMPORADA.TEAM, Goles </span><span class="s2">FROM</span><span class="s1">( 
+ 
+    </span><span class="s2">SELECT </span><span class="s1">id_HomeTeam, SUM(AWAYRESLT) </span><span class="s2">as </span><span class="s1">Goles 
+    </span><span class="s2">FROM </span><span class="s1">H_HISTORIAL_TEMPORADA 
+    </span><span class="s2">GROUP BY </span><span class="s1">id_HomeTeam </span><span class="s2">ORDER BY </span><span class="s1">GOLES </span><span class="s2">DESC</span><span class="s1"> 
+ 
+  ), D_EQUIPOS_TEMPORADA </span><span class="s2">WHERE </span><span class="s1">id_HomeTeam = D_EQUIPOS_TEMPORADA.id_team </span><span class="s2">AND ROWNUM</span><span class="s1">=</span><span class="s4">1</span><span class="s1">; 
+ 
+</span><span class="s0">-- Equipo con menos goles en contra</span><span class="s1"> 
+ 
+</span><span class="s2">SELECT </span><span class="s1">D_EQUIPOS_TEMPORADA.TEAM, Goles </span><span class="s2">FROM</span><span class="s1">( 
+ 
+    </span><span class="s2">SELECT </span><span class="s1">id_HomeTeam, SUM(AWAYRESLT) </span><span class="s2">as </span><span class="s1">Goles 
+    </span><span class="s2">FROM </span><span class="s1">H_HISTORIAL_TEMPORADA 
+    </span><span class="s2">GROUP BY </span><span class="s1">id_HomeTeam </span><span class="s2">ORDER BY </span><span class="s1">GOLES </span><span class="s2">ASC</span><span class="s1"> 
+ 
+  ), D_EQUIPOS_TEMPORADA </span><span class="s2">WHERE </span><span class="s1">id_HomeTeam = D_EQUIPOS_TEMPORADA.id_team </span><span class="s2">AND ROWNUM</span><span class="s1">=</span><span class="s4">1</span><span class="s1">; 
+ 
+</span><span class="s0">-- Equipos con el partido de más goles</span><span class="s1"> 
+ 
+</span><span class="s2">SELECT </span><span class="s1">HomeTeam, Team </span><span class="s2">as </span><span class="s1">AwayTeam, Goles </span><span class="s2">FROM</span><span class="s1">( 
+</span><span class="s2">SELECT </span><span class="s1">TEAM </span><span class="s2">as </span><span class="s1">HomeTeam, id_AwayTeam, Goles </span><span class="s2">FROM</span><span class="s1">( 
+</span><span class="s2">SELECT </span><span class="s1">id_HomeTeam, id_AwayTeam, TOTALGOALS </span><span class="s2">as </span><span class="s1">Goles </span><span class="s2">FROM </span><span class="s1">H_HISTORIAL_TEMPORADA </span><span class="s2">WHERE </span><span class="s1">TOTALGOALS =  (</span><span class="s2">SELECT MAX</span><span class="s1">(TOTALGOALS) </span><span class="s2">FROM </span><span class="s1">H_HISTORIAL_TEMPORADA) 
+), D_EQUIPOS_TEMPORADA </span><span class="s2">WHERE </span><span class="s1">id_HomeTeam = id_TEAM), D_EQUIPOS_TEMPORADA </span><span class="s2">WHERE </span><span class="s1">id_AwayTeam = id_TEAM;</span></pre>
+</body>
+</html>
